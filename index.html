@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Firm Archive</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #FFFFFF;
+      color: #000000;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Nav Bar ── */
+    .navbar {
+      display: flex;
+      align-items: center;
+      height: 72px;
+      padding: 0 40px;
+      background: #F1F2F4;
+      border-bottom: 1px solid #BDBDBD;
+      border-radius: 17px 17px 0 0;
+    }
+    .navbar__logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-right: auto;
+    }
+    .navbar__logo svg { flex-shrink: 0; }
+    .navbar__title {
+      font-size: 24px;
+      font-weight: 500;
+      line-height: 1.08;
+    }
+    .navbar__links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+      margin-right: auto;
+    }
+    .navbar__links a {
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 1.5;
+      color: #000;
+      text-decoration: none;
+    }
+    .navbar__links a:hover { text-decoration: underline; }
+    .navbar__avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #BDBDBD;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+
+    /* ── Content wrapper ── */
+    .content {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 24px 0 60px;
+    }
+
+    /* ── Results bar ── */
+    .results-bar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+    .results-bar__count {
+      font-size: 16px;
+      font-weight: 500;
+      line-height: 1.5;
+      white-space: nowrap;
+    }
+    .results-bar__sources {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-left: 16px;
+    }
+    .source-filter {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 400;
+      color: #000;
+      cursor: pointer;
+      user-select: none;
+    }
+    .source-filter input[type="checkbox"] {
+      display: none;
+    }
+    .source-filter__dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 2px;
+      flex-shrink: 0;
+      position: relative;
+      border: 1.5px solid transparent;
+      transition: opacity 0.15s;
+    }
+    .source-filter input:not(:checked) ~ .source-filter__dot {
+      opacity: 0.35;
+    }
+    .source-filter input:checked ~ .source-filter__dot::after {
+      content: '';
+      position: absolute;
+      top: 1px;
+      left: 4px;
+      width: 4px;
+      height: 7px;
+      border: solid #4D4D4D;
+      border-width: 0 1.5px 1.5px 0;
+      transform: rotate(45deg);
+    }
+
+    .card.hidden {
+      display: none;
+    }
+    .card.flip-out {
+      position: fixed;
+      z-index: 10;
+      pointer-events: none;
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+    .results-bar__sort {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 16px;
+      font-weight: 400;
+      color: #000;
+      white-space: nowrap;
+    }
+    .results-bar__sort svg { flex-shrink: 0; }
+    .results-bar__sort select {
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 400;
+      color: #000;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 2px 0;
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    /* ── Progress accent bar ── */
+    .progress-accent {
+      width: 120px;
+      height: 4px;
+      background: #2251FF;
+      border-radius: 2px;
+      margin-bottom: 24px;
+    }
+
+    /* ── Card Grid ── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: #FFFFFF;
+      border: 1px solid #A9A9A9;
+      border-radius: 4px;
+      box-shadow: 3px 4px 13.5px 0px rgba(0, 0, 0, 0.25);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .card__strip {
+      height: 37px;
+      flex-shrink: 0;
+    }
+    .card__body {
+      padding: 12px 30px 20px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .card__location {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .card__location-icon {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      color: #000;
+    }
+    .card__location-text {
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 1.43;
+    }
+    .card__title {
+      font-size: 16px;
+      font-weight: 500;
+      line-height: 1.5;
+      margin-bottom: 6px;
+    }
+    .card__desc {
+      font-size: 14px;
+      font-weight: 300;
+      line-height: 1.43;
+      margin-bottom: 14px;
+      color: #000;
+    }
+    .card__divider {
+      height: 1px;
+      background: #CCCCCC;
+      margin-bottom: 14px;
+    }
+
+    /* ── Card metadata rows (label + tags) ── */
+    .meta-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .meta-row:last-child { margin-bottom: 0; }
+    .meta-label {
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1.33;
+      white-space: nowrap;
+      min-width: 50px;
+      padding-top: 2px;
+    }
+    .meta-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 8px;
+      background: #E6E6E6;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 400;
+      color: #4D4D4D;
+      line-height: 1.33;
+      white-space: nowrap;
+    }
+
+    /* ── Progress bar inside card ── */
+    .card-progress {
+      margin-bottom: 6px;
+    }
+    .card-progress__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    .card-progress__label {
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1.33;
+    }
+    .card-progress__value {
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 1.33;
+    }
+    .card-progress__track {
+      height: 8px;
+      background: #E6E6E6;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .card-progress__fill {
+      height: 100%;
+      background: #2251FF;
+      border-radius: 999px;
+    }
+
+    /* ── Pill metadata (key-value with pill) ── */
+    .pill-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .pill-row:last-child { margin-bottom: 0; }
+    .pill-label {
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1.33;
+      white-space: nowrap;
+      min-width: 58px;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 8px;
+      background: #E6E6E6;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 400;
+      color: #4D4D4D;
+      line-height: 1.33;
+      white-space: nowrap;
+    }
+
+    /* ── Date/time block ── */
+    .datetime-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .datetime-block span {
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 1.33;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="navbar__logo">
+      <!-- Archive box icon -->
+      <svg width="47" height="47" viewBox="0 0 47 47" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="4" y="8" width="39" height="10" rx="2" stroke="#000" stroke-width="2" fill="none"/>
+        <path d="M8 18v19a2 2 0 002 2h27a2 2 0 002-2V18" stroke="#000" stroke-width="2" fill="none"/>
+        <rect x="18" y="23" width="11" height="3" rx="1" stroke="#000" stroke-width="2" fill="none"/>
+      </svg>
+      <span class="navbar__title">Firm Archive</span>
+    </div>
+    <ul class="navbar__links">
+      <li><a href="#">Home</a></li>
+      <li><a href="#">Advanced Search</a></li>
+      <li><a href="#">FAQ</a></li>
+    </ul>
+    <div class="navbar__avatar">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="8" r="4" fill="#fff"/>
+        <path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6" fill="#fff"/>
+      </svg>
+    </div>
+  </nav>
+
+  <div class="content">
+
+    <!-- Results & Filters Bar -->
+    <div class="results-bar">
+      <span class="results-bar__count">254 results for "Heinz"</span>
+      <div class="results-bar__sources">
+        <label class="source-filter">
+          <input type="checkbox" checked data-filter="cyan" onchange="filterCards()">
+          <span class="source-filter__dot" style="background:#CCF2FF"></span>
+          Alfresco documents
+        </label>
+        <label class="source-filter">
+          <input type="checkbox" checked data-filter="amber" onchange="filterCards()">
+          <span class="source-filter__dot" style="background:#FFE4B3"></span>
+          Dombrowski Collection
+        </label>
+        <label class="source-filter">
+          <input type="checkbox" checked data-filter="green" onchange="filterCards()">
+          <span class="source-filter__dot" style="background:#C3EEC5"></span>
+          Lorem Ipsum Library
+        </label>
+      </div>
+      <div class="results-bar__sort">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="1" y1="4" x2="15" y2="4" stroke="#000" stroke-width="1.5"/>
+          <line x1="3" y1="8" x2="13" y2="8" stroke="#000" stroke-width="1.5"/>
+          <line x1="5" y1="12" x2="11" y2="12" stroke="#000" stroke-width="1.5"/>
+        </svg>
+        Sort by:
+        <select id="sortSelect" onchange="sortCards()">
+          <option value="relevance">Relevance</option>
+          <option value="alpha">Alphabetical</option>
+          <option value="collection">Document Collection</option>
+        </select>
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-left:-2px">
+          <path d="M3 5l3 3 3-3" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Blue accent progress bar -->
+    <div class="progress-accent"></div>
+
+    <!-- Card Grid -->
+    <div class="card-grid">
+
+      <!-- Card 1: Cyan, basic metadata tags -->
+      <div class="card" data-source="cyan" data-collection="Alfresco documents">
+        <div class="card__strip" style="background:#CCF2FF"></div>
+        <div class="card__body">
+          <div class="card__location">
+            <svg class="card__location-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="1" y="3" width="14" height="4" rx="1" stroke="currentColor" stroke-width="1.2"/>
+              <path d="M3 7v6a1 1 0 001 1h8a1 1 0 001-1V7" stroke="currentColor" stroke-width="1.2"/>
+              <rect x="6" y="9" width="4" height="1.5" rx=".5" stroke="currentColor" stroke-width="1"/>
+            </svg>
+            <span class="card__location-text">Box 30</span>
+          </div>
+          <div class="card__title">Client Files: Heinz Management Conference, 1974</div>
+          <div class="card__desc">Correspondence and dta re Heinz Management Conference action program, examination of strategic options; analysis</div>
+          <div class="card__divider"></div>
+          <div class="meta-row">
+            <span class="meta-label">Subject:</span>
+            <div class="meta-tags">
+              <span class="tag">Managing Director</span>
+            </div>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Cell:</span>
+            <div class="meta-tags">
+              <span class="tag">Consumer Packaged Goods</span>
+            </div>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Client:</span>
+            <div class="meta-tags">
+              <span class="tag">HJ. Heinz</span>
+              <span class="tag">Heinz</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: Cyan, project card with progress bar & pills -->
+      <div class="card" data-source="cyan" data-collection="Alfresco documents">
+        <div class="card__strip" style="background:#CCF2FF"></div>
+        <div class="card__body">
+          <div class="card__location">
+            <svg class="card__location-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="1" y="3" width="14" height="4" rx="1" stroke="currentColor" stroke-width="1.2"/>
+              <path d="M3 7v6a1 1 0 001 1h8a1 1 0 001-1V7" stroke="currentColor" stroke-width="1.2"/>
+              <rect x="6" y="9" width="4" height="1.5" rx=".5" stroke="currentColor" stroke-width="1"/>
+            </svg>
+            <span class="card__location-text">Box 32</span>
+          </div>
+          <div class="card__title">Digital Transformation Initiative - Phase 2</div>
+          <div class="card__desc">Implementation of cloud infrastructure and data migration across European markets</div>
+          <div class="card__divider"></div>
+          <div class="card-progress">
+            <div class="card-progress__header">
+              <span class="card-progress__label">Progress:</span>
+              <span class="card-progress__value">68%</span>
+            </div>
+            <div class="card-progress__track">
+              <div class="card-progress__fill" style="width:68%"></div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+            <div class="pill-row">
+              <span class="pill-label">Timeline:</span>
+              <span class="pill">Q2 2024 - Q4 2025</span>
+            </div>
+            <div class="pill-row">
+              <span class="pill-label">Team Size:</span>
+              <span class="pill">12 Members</span>
+            </div>
+            <div class="pill-row">
+              <span class="pill-label">Client:</span>
+              <span class="pill">HJ. Heinz</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3: Amber, meeting card with date/time & pills -->
+      <div class="card" data-source="amber" data-collection="Dombrowski Collection">
+        <div class="card__strip" style="background:#FFE4B3"></div>
+        <div class="card__body">
+          <div class="card__location">
+            <svg class="card__location-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="1" y="3" width="14" height="4" rx="1" stroke="currentColor" stroke-width="1.2"/>
+              <path d="M3 7v6a1 1 0 001 1h8a1 1 0 001-1V7" stroke="currentColor" stroke-width="1.2"/>
+              <rect x="6" y="9" width="4" height="1.5" rx=".5" stroke="currentColor" stroke-width="1"/>
+            </svg>
+            <span class="card__location-text">Box 124</span>
+          </div>
+          <div class="card__title">Heinz 1972 Annual Strategy Review Meeting</div>
+          <div class="card__desc">Executive leadership meeting to review annual performance and define strategic priorities for upcoming fiscal year</div>
+          <div class="card__divider"></div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div class="pill-row">
+              <span class="pill-label" style="min-width:70px">Date &amp; Time:</span>
+              <div class="datetime-block">
+                <span>November 18, 2024</span>
+                <span>2:00 PM - 4:30 PM EST</span>
+              </div>
+            </div>
+            <div class="pill-row">
+              <span class="pill-label" style="min-width:70px">Location:</span>
+              <span class="pill">New York Office - Conf Room A</span>
+            </div>
+            <div class="pill-row">
+              <span class="pill-label" style="min-width:70px">Attendees:</span>
+              <span class="pill">24 Participants</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 4: Amber, basic metadata tags -->
+      <div class="card" data-source="amber" data-collection="Dombrowski Collection">
+        <div class="card__strip" style="background:#FFE4B3"></div>
+        <div class="card__body">
+          <div class="card__location">
+            <svg class="card__location-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="1" y="3" width="14" height="4" rx="1" stroke="currentColor" stroke-width="1.2"/>
+              <path d="M3 7v6a1 1 0 001 1h8a1 1 0 001-1V7" stroke="currentColor" stroke-width="1.2"/>
+              <rect x="6" y="9" width="4" height="1.5" rx=".5" stroke="currentColor" stroke-width="1"/>
+            </svg>
+            <span class="card__location-text">Box 435</span>
+          </div>
+          <div class="card__title">Client Files: Heinz Management Conference, 1974</div>
+          <div class="card__desc">Correspondence and dta re Heinz Management Conference action program, examination of strategic options; analysis</div>
+          <div class="card__divider"></div>
+          <div class="meta-row">
+            <span class="meta-label">Subject:</span>
+            <div class="meta-tags">
+              <span class="tag">Managing Director</span>
+            </div>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Cell:</span>
+            <div class="meta-tags">
+              <span class="tag">Consumer Packaged Goods</span>
+            </div>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Client:</span>
+            <div class="meta-tags">
+              <span class="tag">HJ. Heinz</span>
+              <span class="tag">Heinz</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 5: Green, extended metadata tags -->
+      <div class="card" data-source="green" data-collection="Lorem Ipsum Library">
+        <div class="card__strip" style="background:#C3EEC5"></div>
+        <div class="card__body">
+          <div class="card__location">
+            <svg class="card__location-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="1" y="3" width="14" height="4" rx="1" stroke="currentColor" stroke-width="1.2"/>
+              <path d="M3 7v6a1 1 0 001 1h8a1 1 0 001-1V7" stroke="currentColor" stroke-width="1.2"/>
+              <rect x="6" y="9" width="4" height="1.5" rx=".5" stroke="currentColor" stroke-width="1"/>
+            </svg>
+            <span class="card__location-text">Folder 3,838</span>
+          </div>
+          <div class="card__title">Client Files: Heinz Performance Dataset</div>
+          <div class="card__desc"></div>
+          <div class="card__divider"></div>
+          <div class="meta-row">
+            <span class="meta-label">Access Terms:</span>
+            <div class="meta-tags">
+              <span class="tag">Partner Approval</span>
+              <span class="tag">PDF</span>
+            </div>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Original Format:</span>
+            <div class="meta-tags">
+              <span class="tag">RG4 Industry Pro.</span>
+            </div>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Subject:</span>
+            <div class="meta-tags">
+              <span class="tag">Managing Director</span>
+            </div>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Division:</span>
+            <div class="meta-tags">
+              <span class="tag">Consumer Packaged Goods</span>
+            </div>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Usage rights:</span>
+            <div class="meta-tags">
+              <span class="tag">100% Owned</span>
+              <span class="tag">Kobol agregated</span>
+            </div>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Client:</span>
+            <div class="meta-tags">
+              <span class="tag">HJ. Heinz</span>
+              <span class="tag">Heinz</span>
+            </div>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Metadata:</span>
+            <div class="meta-tags">
+              <span class="tag">Consumer Packaged Goods</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /card-grid -->
+
+  </div><!-- /content -->
+
+  <script>
+    var SEARCH_TERM = 'heinz';
+    var DURATION = 400;
+    var grid = document.querySelector('.card-grid');
+    var originalOrder = Array.from(grid.querySelectorAll('.card[data-source]'));
+    var animating = false;
+
+    function getRelevance(card) {
+      var text = card.textContent.toLowerCase();
+      var count = 0;
+      var pos = 0;
+      while ((pos = text.indexOf(SEARCH_TERM, pos)) !== -1) { count++; pos += SEARCH_TERM.length; }
+      return count;
+    }
+
+    function getTitle(card) {
+      var el = card.querySelector('.card__title');
+      return el ? el.textContent.trim().toLowerCase() : '';
+    }
+
+    function animateLayout(applyFn) {
+      if (animating) return;
+      animating = true;
+
+      var allCards = Array.from(grid.querySelectorAll('.card[data-source]'));
+      var firstRects = new Map();
+      allCards.forEach(function(card) {
+        if (!card.classList.contains('hidden')) {
+          firstRects.set(card, card.getBoundingClientRect());
+        }
+      });
+
+      applyFn();
+
+      var toShow = [];
+      var toHide = [];
+
+      allCards.forEach(function(card) {
+        var wasVisible = firstRects.has(card);
+        var isVisible = !card.classList.contains('hidden');
+        if (!wasVisible && isVisible) toShow.push(card);
+      });
+
+      firstRects.forEach(function(rect, card) {
+        if (card.classList.contains('hidden')) toHide.push({ card: card, rect: rect });
+      });
+
+      toHide.forEach(function(item) {
+        var ghost = item.card.cloneNode(true);
+        ghost.classList.remove('hidden');
+        ghost.classList.add('flip-out');
+        ghost.style.left = item.rect.left + 'px';
+        ghost.style.top = item.rect.top + 'px';
+        ghost.style.width = item.rect.width + 'px';
+        ghost.style.height = item.rect.height + 'px';
+        document.body.appendChild(ghost);
+        requestAnimationFrame(function() {
+          ghost.style.opacity = '0';
+          ghost.style.transform = 'scale(0.92)';
+        });
+        setTimeout(function() { ghost.remove(); }, DURATION);
+      });
+
+      toShow.forEach(function(card) {
+        card.style.opacity = '0';
+        card.style.transform = 'scale(0.92)';
+        card.style.transition = 'none';
+      });
+
+      allCards.forEach(function(card) {
+        if (card.classList.contains('hidden')) return;
+        if (toShow.indexOf(card) !== -1) return;
+        var firstRect = firstRects.get(card);
+        if (!firstRect) return;
+        var lastRect = card.getBoundingClientRect();
+        var dx = firstRect.left - lastRect.left;
+        var dy = firstRect.top - lastRect.top;
+        if (dx === 0 && dy === 0) return;
+        card.style.transition = 'none';
+        card.style.transform = 'translate(' + dx + 'px, ' + dy + 'px)';
+      });
+
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          var ease = 'transform ' + DURATION + 'ms cubic-bezier(.4,0,.2,1), opacity ' + DURATION + 'ms ease';
+          allCards.forEach(function(card) {
+            if (card.classList.contains('hidden')) return;
+            card.style.transition = ease;
+            card.style.transform = '';
+            if (toShow.indexOf(card) !== -1) {
+              card.style.opacity = '';
+            }
+          });
+          setTimeout(function() {
+            allCards.forEach(function(card) {
+              card.style.transition = '';
+              card.style.transform = '';
+              card.style.opacity = '';
+            });
+            animating = false;
+          }, DURATION + 20);
+        });
+      });
+    }
+
+    function sortCards() {
+      animateLayout(function() {
+        var mode = document.getElementById('sortSelect').value;
+        var cards = Array.from(grid.querySelectorAll('.card[data-source]'));
+
+        if (mode === 'relevance') {
+          cards.sort(function(a, b) {
+            var diff = getRelevance(b) - getRelevance(a);
+            if (diff !== 0) return diff;
+            return originalOrder.indexOf(a) - originalOrder.indexOf(b);
+          });
+        } else if (mode === 'alpha') {
+          cards.sort(function(a, b) {
+            return getTitle(a).localeCompare(getTitle(b));
+          });
+        } else if (mode === 'collection') {
+          cards.sort(function(a, b) {
+            var cmp = a.dataset.collection.localeCompare(b.dataset.collection);
+            if (cmp !== 0) return cmp;
+            return getTitle(a).localeCompare(getTitle(b));
+          });
+        }
+
+        cards.forEach(function(card) { grid.appendChild(card); });
+      });
+    }
+
+    function filterCards() {
+      animateLayout(function() {
+        var checkboxes = document.querySelectorAll('.source-filter input[type="checkbox"]');
+        var active = new Set();
+        checkboxes.forEach(function(cb) {
+          if (cb.checked) active.add(cb.dataset.filter);
+        });
+        document.querySelectorAll('.card[data-source]').forEach(function(card) {
+          card.classList.toggle('hidden', !active.has(card.dataset.source));
+        });
+      });
+    }
+  </script>
+</body>
+</html>
