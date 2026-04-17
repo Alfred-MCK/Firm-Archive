@@ -6,7 +6,7 @@
   <title>Firm Archive</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -177,100 +177,191 @@
       gap: 30px;
     }
 
-    /* ── Card ── */
+    /* ── Card (sample layout) ── */
     .card {
       background: #FFFFFF;
-      border: 1px solid #A9A9A9;
-      border-radius: 4px;
-      box-shadow: 3px 4px 13.5px 0px rgba(0, 0, 0, 0.25);
-      overflow: hidden;
+      border: 1px solid #2563EB;
+      border-radius: 6px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+      overflow: visible;
       display: flex;
       flex-direction: column;
     }
-    .card__strip {
-      height: 37px;
-      flex-shrink: 0;
+    .card__header {
+      padding: 14px 16px;
+      border-radius: 5px 5px 0 0;
+    }
+    .card[data-source="cyan"] .card__header {
+      background: #CCF2FF;
+    }
+    .card[data-source="amber"] .card__header {
+      background: #FFE4B3;
+    }
+    .card[data-source="green"] .card__header {
+      background: #C3EEC5;
+    }
+    .card__title {
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1.4;
+      color: #000000;
+      margin: 0;
     }
     .card__body {
-      padding: 12px 30px 20px;
+      padding: 14px 16px 16px;
       display: flex;
       flex-direction: column;
       flex: 1;
     }
-    .card__location {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 10px;
-    }
-    .card__location-icon {
-      width: 16px;
-      height: 16px;
-      flex-shrink: 0;
-      color: #000;
-    }
-    .card__location-text {
-      font-size: 14px;
+    .card__dates {
+      font-size: 13px;
       font-weight: 400;
-      line-height: 1.43;
-    }
-    .card__title {
-      font-size: 16px;
-      font-weight: 500;
-      line-height: 1.5;
-      margin-bottom: 6px;
+      line-height: 1.45;
+      color: #000000;
+      margin-bottom: 10px;
     }
     .card__desc {
       font-size: 14px;
-      font-weight: 300;
-      line-height: 1.43;
-      margin-bottom: 14px;
-      color: #000;
+      font-weight: 400;
+      line-height: 1.5;
+      margin-bottom: 12px;
+      color: #000000;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+      line-clamp: 3;
+      overflow: hidden;
     }
     .card__divider {
       height: 1px;
       background: #CCCCCC;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
-
-    /* ── Card metadata rows (label + tags) ── */
-    .meta-row {
+    .card__footer {
       display: flex;
-      align-items: flex-start;
-      gap: 10px;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 14px;
+      margin-top: auto;
+    }
+    .card__footer-main {
+      flex: 1;
+      min-width: 0;
+    }
+    .card__archive-line {
+      font-size: 12px;
+      line-height: 1.5;
+      margin-bottom: 10px;
+      color: #000000;
+    }
+    .card__archive-line strong {
+      font-weight: 600;
+    }
+    .card__kv {
+      white-space: nowrap;
+    }
+    .card__kv + .card__kv {
+      margin-left: 18px;
+    }
+    @media (max-width: 900px) {
+      .card__kv { white-space: normal; }
+      .card__archive-line .card__kv + .card__kv {
+        margin-left: 0;
+        display: block;
+        margin-top: 4px;
+      }
+    }
+    .card__pill-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
       margin-bottom: 6px;
     }
-    .meta-row:last-child { margin-bottom: 0; }
-    .meta-label {
+    .card__pill-row:last-child {
+      margin-bottom: 0;
+    }
+    .card__pill-label {
       font-size: 12px;
-      font-weight: 500;
+      font-weight: 600;
       line-height: 1.33;
+      color: #000000;
       white-space: nowrap;
-      min-width: 50px;
-      padding-top: 2px;
     }
-    .meta-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-    }
-    .tag {
+    .pill {
       display: inline-flex;
       align-items: center;
-      justify-content: center;
-      padding: 4px 8px;
+      padding: 4px 10px;
       background: #E6E6E6;
       border-radius: 4px;
       font-size: 12px;
       font-weight: 400;
       color: #4D4D4D;
       line-height: 1.33;
-      white-space: nowrap;
+      max-width: 100%;
+    }
+    .card__icons {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+      padding-bottom: 2px;
+    }
+    .card__icon-wrap {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .card__icon-wrap::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 6px 10px;
+      background: #1a1a1a;
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 400;
+      line-height: 1.35;
+      border-radius: 4px;
+      max-width: min(240px, 70vw);
+      text-align: center;
+      white-space: normal;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      z-index: 30;
+      transition: opacity 0.15s ease, visibility 0.15s ease;
+    }
+    .card__icon-wrap:hover::after {
+      opacity: 1;
+      visibility: visible;
+    }
+    .card__icon {
+      display: block;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+    .card__icon--key {
+      width: 11px;
+      height: 22px;
+    }
+    .card__icon--doc {
+      width: 15px;
+      height: 19px;
+    }
+    .card__icon--owner {
+      width: 19px;
+      height: 20px;
     }
 
-    /* ── Progress bar inside card ── */
+    /* ── Progress bar (optional block above divider) ── */
     .card-progress {
-      margin-bottom: 6px;
+      margin-bottom: 12px;
     }
     .card-progress__header {
       display: flex;
@@ -280,7 +371,7 @@
     }
     .card-progress__label {
       font-size: 12px;
-      font-weight: 500;
+      font-weight: 600;
       line-height: 1.33;
     }
     .card-progress__value {
@@ -296,48 +387,8 @@
     }
     .card-progress__fill {
       height: 100%;
-      background: #2251FF;
+      background: #2563EB;
       border-radius: 999px;
-    }
-
-    /* ── Pill metadata (key-value with pill) ── */
-    .pill-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 8px;
-    }
-    .pill-row:last-child { margin-bottom: 0; }
-    .pill-label {
-      font-size: 12px;
-      font-weight: 500;
-      line-height: 1.33;
-      white-space: nowrap;
-      min-width: 58px;
-    }
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      padding: 4px 8px;
-      background: #E6E6E6;
-      border-radius: 4px;
-      font-size: 12px;
-      font-weight: 400;
-      color: #4D4D4D;
-      line-height: 1.33;
-      white-space: nowrap;
-    }
-
-    /* ── Date/time block ── */
-    .datetime-block {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-    .datetime-block span {
-      font-size: 12px;
-      font-weight: 400;
-      line-height: 1.33;
     }
   </style>
 </head>
@@ -371,7 +422,7 @@
 
     <!-- Results & Filters Bar -->
     <div class="results-bar">
-      <span class="results-bar__count">254 results for "Heinz"</span>
+      <span class="results-bar__count">294 results for "Heinz"</span>
       <div class="results-bar__sources">
         <label class="source-filter">
           <input type="checkbox" checked data-filter="cyan" onchange="filterCards()">
@@ -413,58 +464,39 @@
     <!-- Card Grid -->
     <div class="card-grid">
 
-      <!-- Card 1: Cyan, basic metadata tags -->
+      <!-- Card 1 -->
       <div class="card" data-source="cyan" data-collection="Alfresco documents">
-        <div class="card__strip" style="background:#CCF2FF"></div>
+        <div class="card__header">
+          <h2 class="card__title">Client Files: Heinz Management Conference (Box 30), 1974</h2>
+        </div>
         <div class="card__body">
-          <div class="card__location">
-            <svg class="card__location-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="1" y="3" width="14" height="4" rx="1" stroke="currentColor" stroke-width="1.2"/>
-              <path d="M3 7v6a1 1 0 001 1h8a1 1 0 001-1V7" stroke="currentColor" stroke-width="1.2"/>
-              <rect x="6" y="9" width="4" height="1.5" rx=".5" stroke="currentColor" stroke-width="1"/>
-            </svg>
-            <span class="card__location-text">Box 30</span>
-          </div>
-          <div class="card__title">Client Files: Heinz Management Conference, 1974</div>
-          <div class="card__desc">Correspondence and dta re Heinz Management Conference action program, examination of strategic options; analysis</div>
+          <p class="card__dates">From 1/15/1974 to 8/22/1974</p>
+          <p class="card__desc">Correspondence and data re Heinz Management Conference action program; strategic options and analysis. Offices: Pittsburgh, London.</p>
           <div class="card__divider"></div>
-          <div class="meta-row">
-            <span class="meta-label">Subject:</span>
-            <div class="meta-tags">
-              <span class="tag">Managing Director</span>
+          <div class="card__footer">
+            <div class="card__footer-main">
+              <p class="card__archive-line"><span class="card__kv"><strong>Archive ID:</strong> 10241</span><span class="card__kv"><strong>Modified:</strong> 9/1/1974</span></p>
+              <div class="card__pill-row"><span class="card__pill-label">Modifier:</span><span class="pill">James Porter</span></div>
+              <div class="card__pill-row"><span class="card__pill-label">Client:</span><span class="pill">HJ. Heinz</span></div>
+              <div class="card__pill-row"><span class="card__pill-label">Creator:</span><span class="pill">Margaret Chen</span></div>
             </div>
-          </div>
-          <div class="meta-row">
-            <span class="meta-label">Cell:</span>
-            <div class="meta-tags">
-              <span class="tag">Consumer Packaged Goods</span>
-            </div>
-          </div>
-          <div class="meta-row">
-            <span class="meta-label">Client:</span>
-            <div class="meta-tags">
-              <span class="tag">HJ. Heinz</span>
-              <span class="tag">Heinz</span>
+            <div class="card__icons">
+              <span class="card__icon-wrap" data-tooltip="Partner Approval Required"><img class="card__icon card__icon--key" src="Icon_Key.png" alt="" width="11" height="22"></span>
+              <span class="card__icon-wrap" data-tooltip="PDF"><img class="card__icon card__icon--doc" src="Icon_document.png" alt="" width="15" height="19"></span>
+              <span class="card__icon-wrap" data-tooltip="Alfred Astort-Tubert"><img class="card__icon card__icon--owner" src="icon_Owner.png" alt="" width="19" height="20"></span>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Card 2: Cyan, project card with progress bar & pills -->
+      <!-- Card 2 -->
       <div class="card" data-source="cyan" data-collection="Alfresco documents">
-        <div class="card__strip" style="background:#CCF2FF"></div>
+        <div class="card__header">
+          <h2 class="card__title">Digital Transformation Initiative - Phase 2 (Box 32)</h2>
+        </div>
         <div class="card__body">
-          <div class="card__location">
-            <svg class="card__location-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="1" y="3" width="14" height="4" rx="1" stroke="currentColor" stroke-width="1.2"/>
-              <path d="M3 7v6a1 1 0 001 1h8a1 1 0 001-1V7" stroke="currentColor" stroke-width="1.2"/>
-              <rect x="6" y="9" width="4" height="1.5" rx=".5" stroke="currentColor" stroke-width="1"/>
-            </svg>
-            <span class="card__location-text">Box 32</span>
-          </div>
-          <div class="card__title">Digital Transformation Initiative - Phase 2</div>
-          <div class="card__desc">Implementation of cloud infrastructure and data migration across European markets</div>
-          <div class="card__divider"></div>
+          <p class="card__dates">From 4/1/2024 to 12/31/2025</p>
+          <p class="card__desc">Cloud infrastructure and data migration across European markets; steering updates and risk register.</p>
           <div class="card-progress">
             <div class="card-progress__header">
               <span class="card-progress__label">Progress:</span>
@@ -474,153 +506,93 @@
               <div class="card-progress__fill" style="width:68%"></div>
             </div>
           </div>
-          <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
-            <div class="pill-row">
-              <span class="pill-label">Timeline:</span>
-              <span class="pill">Q2 2024 - Q4 2025</span>
-            </div>
-            <div class="pill-row">
-              <span class="pill-label">Team Size:</span>
-              <span class="pill">12 Members</span>
-            </div>
-            <div class="pill-row">
-              <span class="pill-label">Client:</span>
-              <span class="pill">HJ. Heinz</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Card 3: Amber, meeting card with date/time & pills -->
-      <div class="card" data-source="amber" data-collection="Dombrowski Collection">
-        <div class="card__strip" style="background:#FFE4B3"></div>
-        <div class="card__body">
-          <div class="card__location">
-            <svg class="card__location-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="1" y="3" width="14" height="4" rx="1" stroke="currentColor" stroke-width="1.2"/>
-              <path d="M3 7v6a1 1 0 001 1h8a1 1 0 001-1V7" stroke="currentColor" stroke-width="1.2"/>
-              <rect x="6" y="9" width="4" height="1.5" rx=".5" stroke="currentColor" stroke-width="1"/>
-            </svg>
-            <span class="card__location-text">Box 124</span>
-          </div>
-          <div class="card__title">Heinz 1972 Annual Strategy Review Meeting</div>
-          <div class="card__desc">Executive leadership meeting to review annual performance and define strategic priorities for upcoming fiscal year</div>
           <div class="card__divider"></div>
-          <div style="display:flex;flex-direction:column;gap:10px">
-            <div class="pill-row">
-              <span class="pill-label" style="min-width:70px">Date &amp; Time:</span>
-              <div class="datetime-block">
-                <span>November 18, 2024</span>
-                <span>2:00 PM - 4:30 PM EST</span>
-              </div>
+          <div class="card__footer">
+            <div class="card__footer-main">
+              <p class="card__archive-line"><span class="card__kv"><strong>Archive ID:</strong> 20816</span><span class="card__kv"><strong>Modified:</strong> 2/14/2025</span></p>
+              <div class="card__pill-row"><span class="card__pill-label">Modifier:</span><span class="pill">Priya Nandakumar</span></div>
+              <div class="card__pill-row"><span class="card__pill-label">Client:</span><span class="pill">HJ. Heinz</span></div>
+              <div class="card__pill-row"><span class="card__pill-label">Creator:</span><span class="pill">Ops PMO, 12 Members</span></div>
             </div>
-            <div class="pill-row">
-              <span class="pill-label" style="min-width:70px">Location:</span>
-              <span class="pill">New York Office - Conf Room A</span>
-            </div>
-            <div class="pill-row">
-              <span class="pill-label" style="min-width:70px">Attendees:</span>
-              <span class="pill">24 Participants</span>
+            <div class="card__icons">
+              <span class="card__icon-wrap" data-tooltip="Partner Approval Required"><img class="card__icon card__icon--key" src="Icon_Key.png" alt="" width="11" height="22"></span>
+              <span class="card__icon-wrap" data-tooltip="PDF"><img class="card__icon card__icon--doc" src="Icon_document.png" alt="" width="15" height="19"></span>
+              <span class="card__icon-wrap" data-tooltip="Alfred Astort-Tubert"><img class="card__icon card__icon--owner" src="icon_Owner.png" alt="" width="19" height="20"></span>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Card 4: Amber, basic metadata tags -->
+      <!-- Card 3 -->
       <div class="card" data-source="amber" data-collection="Dombrowski Collection">
-        <div class="card__strip" style="background:#FFE4B3"></div>
+        <div class="card__header">
+          <h2 class="card__title">Heinz 1972 Annual Strategy Review Meeting (Box 124)</h2>
+        </div>
         <div class="card__body">
-          <div class="card__location">
-            <svg class="card__location-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="1" y="3" width="14" height="4" rx="1" stroke="currentColor" stroke-width="1.2"/>
-              <path d="M3 7v6a1 1 0 001 1h8a1 1 0 001-1V7" stroke="currentColor" stroke-width="1.2"/>
-              <rect x="6" y="9" width="4" height="1.5" rx=".5" stroke="currentColor" stroke-width="1"/>
-            </svg>
-            <span class="card__location-text">Box 435</span>
-          </div>
-          <div class="card__title">Client Files: Heinz Management Conference, 1974</div>
-          <div class="card__desc">Correspondence and dta re Heinz Management Conference action program, examination of strategic options; analysis</div>
+          <p class="card__dates">From 11/18/2024 to 11/18/2024</p>
+          <p class="card__desc">Executive leadership review of annual performance and fiscal-year priorities. New York Office, Conf Room A; 24 participants.</p>
           <div class="card__divider"></div>
-          <div class="meta-row">
-            <span class="meta-label">Subject:</span>
-            <div class="meta-tags">
-              <span class="tag">Managing Director</span>
+          <div class="card__footer">
+            <div class="card__footer-main">
+              <p class="card__archive-line"><span class="card__kv"><strong>Archive ID:</strong> 44102</span><span class="card__kv"><strong>Modified:</strong> 11/19/2024</span></p>
+              <div class="card__pill-row"><span class="card__pill-label">Modifier:</span><span class="pill">Alex Morgan</span></div>
+              <div class="card__pill-row"><span class="card__pill-label">Client:</span><span class="pill">HJ. Heinz</span></div>
+              <div class="card__pill-row"><span class="card__pill-label">Creator:</span><span class="pill">Corporate Secretary Office</span></div>
             </div>
-          </div>
-          <div class="meta-row">
-            <span class="meta-label">Cell:</span>
-            <div class="meta-tags">
-              <span class="tag">Consumer Packaged Goods</span>
-            </div>
-          </div>
-          <div class="meta-row">
-            <span class="meta-label">Client:</span>
-            <div class="meta-tags">
-              <span class="tag">HJ. Heinz</span>
-              <span class="tag">Heinz</span>
+            <div class="card__icons">
+              <span class="card__icon-wrap" data-tooltip="Partner Approval Required"><img class="card__icon card__icon--key" src="Icon_Key.png" alt="" width="11" height="22"></span>
+              <span class="card__icon-wrap" data-tooltip="PDF"><img class="card__icon card__icon--doc" src="Icon_document.png" alt="" width="15" height="19"></span>
+              <span class="card__icon-wrap" data-tooltip="Alfred Astort-Tubert"><img class="card__icon card__icon--owner" src="icon_Owner.png" alt="" width="19" height="20"></span>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Card 5: Green, extended metadata tags -->
+      <!-- Card 4 -->
+      <div class="card" data-source="amber" data-collection="Dombrowski Collection">
+        <div class="card__header">
+          <h2 class="card__title">Client Files: Heinz Management Conference (Box 435), 1974</h2>
+        </div>
+        <div class="card__body">
+          <p class="card__dates">From 2/3/1974 to 9/30/1974</p>
+          <p class="card__desc">Correspondence and data re Heinz Management Conference action program, examination of strategic options; analysis.</p>
+          <div class="card__divider"></div>
+          <div class="card__footer">
+            <div class="card__footer-main">
+              <p class="card__archive-line"><span class="card__kv"><strong>Archive ID:</strong> 11890</span><span class="card__kv"><strong>Modified:</strong> 10/2/1974</span></p>
+              <div class="card__pill-row"><span class="card__pill-label">Modifier:</span><span class="pill">Diane Holloway</span></div>
+              <div class="card__pill-row"><span class="card__pill-label">Client:</span><span class="pill">HJ. Heinz</span></div>
+              <div class="card__pill-row"><span class="card__pill-label">Creator:</span><span class="pill">Records Services</span></div>
+            </div>
+            <div class="card__icons">
+              <span class="card__icon-wrap" data-tooltip="Partner Approval Required"><img class="card__icon card__icon--key" src="Icon_Key.png" alt="" width="11" height="22"></span>
+              <span class="card__icon-wrap" data-tooltip="PDF"><img class="card__icon card__icon--doc" src="Icon_document.png" alt="" width="15" height="19"></span>
+              <span class="card__icon-wrap" data-tooltip="Alfred Astort-Tubert"><img class="card__icon card__icon--owner" src="icon_Owner.png" alt="" width="19" height="20"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 5 -->
       <div class="card" data-source="green" data-collection="Lorem Ipsum Library">
-        <div class="card__strip" style="background:#C3EEC5"></div>
+        <div class="card__header">
+          <h2 class="card__title">Client Files: Heinz Performance Dataset (Folder 3,838)</h2>
+        </div>
         <div class="card__body">
-          <div class="card__location">
-            <svg class="card__location-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="1" y="3" width="14" height="4" rx="1" stroke="currentColor" stroke-width="1.2"/>
-              <path d="M3 7v6a1 1 0 001 1h8a1 1 0 001-1V7" stroke="currentColor" stroke-width="1.2"/>
-              <rect x="6" y="9" width="4" height="1.5" rx=".5" stroke="currentColor" stroke-width="1"/>
-            </svg>
-            <span class="card__location-text">Folder 3,838</span>
-          </div>
-          <div class="card__title">Client Files: Heinz Performance Dataset</div>
-          <div class="card__desc"></div>
+          <p class="card__dates">From 6/1/2019 to 3/15/2023</p>
+          <p class="card__desc">Partner approval; PDF and RG4 provenance. 100% owned; Kobol aggregated metrics. CPG division.</p>
           <div class="card__divider"></div>
-          <div class="meta-row">
-            <span class="meta-label">Access Terms:</span>
-            <div class="meta-tags">
-              <span class="tag">Partner Approval</span>
-              <span class="tag">PDF</span>
+          <div class="card__footer">
+            <div class="card__footer-main">
+              <p class="card__archive-line"><span class="card__kv"><strong>Archive ID:</strong> 55301</span><span class="card__kv"><strong>Modified:</strong> 3/16/2023</span></p>
+              <div class="card__pill-row"><span class="card__pill-label">Modifier:</span><span class="pill">Elisa Branton-McChallagan</span></div>
+              <div class="card__pill-row"><span class="card__pill-label">Client:</span><span class="pill">HJ. Heinz</span></div>
+              <div class="card__pill-row"><span class="card__pill-label">Creator:</span><span class="pill">Elisa Branton-McChallagan, Benita Liu</span></div>
             </div>
-          </div>
-          <div class="meta-row">
-            <span class="meta-label">Original Format:</span>
-            <div class="meta-tags">
-              <span class="tag">RG4 Industry Pro.</span>
-            </div>
-          </div>
-          <div class="meta-row">
-            <span class="meta-label">Subject:</span>
-            <div class="meta-tags">
-              <span class="tag">Managing Director</span>
-            </div>
-          </div>
-          <div class="meta-row">
-            <span class="meta-label">Division:</span>
-            <div class="meta-tags">
-              <span class="tag">Consumer Packaged Goods</span>
-            </div>
-          </div>
-          <div class="meta-row">
-            <span class="meta-label">Usage rights:</span>
-            <div class="meta-tags">
-              <span class="tag">100% Owned</span>
-              <span class="tag">Kobol agregated</span>
-            </div>
-          </div>
-          <div class="meta-row">
-            <span class="meta-label">Client:</span>
-            <div class="meta-tags">
-              <span class="tag">HJ. Heinz</span>
-              <span class="tag">Heinz</span>
-            </div>
-          </div>
-          <div class="meta-row">
-            <span class="meta-label">Metadata:</span>
-            <div class="meta-tags">
-              <span class="tag">Consumer Packaged Goods</span>
+            <div class="card__icons">
+              <span class="card__icon-wrap" data-tooltip="Partner Approval Required"><img class="card__icon card__icon--key" src="Icon_Key.png" alt="" width="11" height="22"></span>
+              <span class="card__icon-wrap" data-tooltip="PDF"><img class="card__icon card__icon--doc" src="Icon_document.png" alt="" width="15" height="19"></span>
+              <span class="card__icon-wrap" data-tooltip="Alfred Astort-Tubert"><img class="card__icon card__icon--owner" src="icon_Owner.png" alt="" width="19" height="20"></span>
             </div>
           </div>
         </div>
@@ -634,6 +606,105 @@
     var SEARCH_TERM = 'heinz';
     var DURATION = 400;
     var grid = document.querySelector('.card-grid');
+
+    (function addRandomMockCards() {
+      var SOURCES = [
+        { source: 'cyan', collection: 'Alfresco documents' },
+        { source: 'amber', collection: 'Dombrowski Collection' },
+        { source: 'green', collection: 'Lorem Ipsum Library' }
+      ];
+      var TITLE_A = ['Heinz', 'Archive', 'Client', 'Project', 'Engagement', 'Matter', 'Workstream', 'Initiative', 'Program', 'Portfolio', 'Case', 'Record', 'Bundle', 'Dossier', 'File', 'Packet', 'Binder', 'Series', 'Volume', 'Tranche'];
+      var TITLE_B = ['Review', 'Memo', 'Brief', 'Summary', 'Analysis', 'Assessment', 'Audit', 'Closeout', 'Kickoff', 'Workplan', 'Update', 'Status', 'Minutes', 'Transcript', 'Correspondence', 'Agreement', 'Amendment', 'Schedule', 'Appendix', 'Addendum'];
+      var DESC_SNIPS = ['Internal correspondence and supporting materials.', 'Draft materials for partner review.', 'Historical records retained under policy.', 'Scanned images with OCR text layer.', 'Restricted distribution; handle per policy.', 'Cross-references related Heinz materials.', 'Compiled for diligence and disclosure.', 'Legacy filing; location verified 2024.', 'Mixed media; index incomplete.', 'Redactions applied per legal guidance.'];
+      var BOX_PREFIX = ['Box', 'Folder', 'Drawer', 'Vault', 'Cabinet', 'Bay', 'Shelf', 'Lot', 'Reel', 'Carton'];
+      var MODIFIERS = ['Paul Lasewickz', 'Priya Nandakumar', 'Alex Morgan', 'James Porter', 'Diane Holloway', 'Sam Okonkwo', 'Rina Patel', 'Chris Delgado', 'Jordan Ellis', 'Taylor Brooks', 'Morgan Lee', 'Casey Nguyen', 'Jamie Frost', 'Riley Santos', 'Quinn Harper'];
+      var CREATORS = ['Records Services', 'Ops PMO', 'Corporate Secretary Office', 'Margaret Chen', 'Benita Liu', 'Elisa Branton-McChallagan', 'Digital Archives Unit', 'Litigation Support', 'Knowledge Management', 'Elisa Branton-McChallagan, Benita Liu', 'Taxonomy Working Group', 'Scanning Vendor A', 'Partner Review Pool'];
+
+      function escapeHtml(s) {
+        return String(s)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      var TIP_KEY = 'Partner Approval Required';
+      var TIP_DOC = 'PDF';
+      var TIP_OWNER = 'Alfred Astort-Tubert';
+      var ICONS_HTML =
+        '<div class="card__icons">' +
+        '<span class="card__icon-wrap" data-tooltip="' + escapeHtml(TIP_KEY) + '"><img class="card__icon card__icon--key" src="Icon_Key.png" alt="" width="11" height="22"></span>' +
+        '<span class="card__icon-wrap" data-tooltip="' + escapeHtml(TIP_DOC) + '"><img class="card__icon card__icon--doc" src="Icon_document.png" alt="" width="15" height="19"></span>' +
+        '<span class="card__icon-wrap" data-tooltip="' + escapeHtml(TIP_OWNER) + '"><img class="card__icon card__icon--owner" src="icon_Owner.png" alt="" width="19" height="20"></span>' +
+        '</div>';
+
+      function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+      function shuffleInPlace(arr) {
+        for (var i = arr.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+        }
+        return arr;
+      }
+
+      var sourcesList = [];
+      var perSource = [14, 13, 13];
+      for (var si = 0; si < perSource.length; si++) {
+        for (var c = 0; c < perSource[si]; c++) sourcesList.push(SOURCES[si]);
+      }
+      shuffleInPlace(sourcesList);
+
+      function fmtDate(dt) {
+        return (dt.getMonth() + 1) + '/' + dt.getDate() + '/' + dt.getFullYear();
+      }
+      function randomDateInRange(yMin, yMax) {
+        var lo = new Date(yMin, 0, 1).getTime();
+        var hi = new Date(yMax, 11, 31).getTime();
+        var t = lo + Math.floor(Math.random() * (hi - lo));
+        return new Date(t);
+      }
+
+      for (var n = 0; n < 40; n++) {
+        var src = sourcesList[n];
+        var yStart = 1968 + Math.floor(Math.random() * 58);
+        var yEnd = Math.min(yStart + Math.floor(Math.random() * 8), 2026);
+        var dA = randomDateInRange(yStart, yStart);
+        var dB = randomDateInRange(yEnd, yEnd);
+        if (dA.getTime() > dB.getTime()) { var tmp = dA; dA = dB; dB = tmp; }
+        var dateFrom = fmtDate(dA);
+        var dateTo = fmtDate(dB);
+        var archiveId = String(10000 + Math.floor(Math.random() * 90000));
+        var modified = fmtDate(randomDateInRange(1990, 2026));
+        var modifier = pick(MODIFIERS);
+        var creator = pick(CREATORS);
+        var client = Math.random() > 0.15 ? 'HJ. Heinz' : 'Heinz USA';
+        var loc = pick(BOX_PREFIX) + ' ' + (1 + Math.floor(Math.random() * 900));
+        var title = pick(TITLE_A) + ' ' + pick(TITLE_B) + ' (' + loc + '), ' + yStart;
+        var desc = pick(DESC_SNIPS);
+        var wrap = document.createElement('div');
+        wrap.innerHTML =
+          '<div class="card" data-source="' + escapeHtml(src.source) + '" data-collection="' + escapeHtml(src.collection) + '">' +
+            '<div class="card__header"><h2 class="card__title">' + escapeHtml(title) + '</h2></div>' +
+            '<div class="card__body">' +
+              '<p class="card__dates">From ' + escapeHtml(dateFrom) + ' to ' + escapeHtml(dateTo) + '</p>' +
+              '<p class="card__desc">' + escapeHtml(desc) + '</p>' +
+              '<div class="card__divider"></div>' +
+              '<div class="card__footer">' +
+                '<div class="card__footer-main">' +
+                  '<p class="card__archive-line"><span class="card__kv"><strong>Archive ID:</strong> ' + escapeHtml(archiveId) + '</span><span class="card__kv"><strong>Modified:</strong> ' + escapeHtml(modified) + '</span></p>' +
+                  '<div class="card__pill-row"><span class="card__pill-label">Modifier:</span><span class="pill">' + escapeHtml(modifier) + '</span></div>' +
+                  '<div class="card__pill-row"><span class="card__pill-label">Client:</span><span class="pill">' + escapeHtml(client) + '</span></div>' +
+                  '<div class="card__pill-row"><span class="card__pill-label">Creator:</span><span class="pill">' + escapeHtml(creator) + '</span></div>' +
+                '</div>' +
+                ICONS_HTML +
+              '</div>' +
+            '</div>' +
+          '</div>';
+        grid.appendChild(wrap.firstElementChild);
+      }
+    })();
+
     var originalOrder = Array.from(grid.querySelectorAll('.card[data-source]'));
     var animating = false;
 
