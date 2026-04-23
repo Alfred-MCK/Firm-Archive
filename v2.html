@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Firm Archive — v2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --surface: #ffffff;
+      --bg: #f7f8fa;
+      --border: #d4d4d8;
+      --border-subtle: #e8e8ec;
+      --text-h: #18181b;
+      --text-body: #3f3f46;
+      --text-muted: #71717a;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --focus: #60a5fa;
+      --row-hover: rgba(0,0,0,0.03);
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+      --mono: 'SF Mono', 'Cascadia Code', 'Fira Mono', monospace;
+
+      --cyan: #CCF2FF;
+      --amber: #FFE4B3;
+      --green: #C3EEC5;
+      --neutral-10: #E6E6E6;
+      --neutral-20: #CCCCCC;
+      --neutral-70: #4D4D4D;
+    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text-h);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Nav Bar ── */
+    .navbar {
+      display: flex;
+      align-items: center;
+      height: 56px;
+      padding: 0 24px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .navbar__logo { display: flex; align-items: center; gap: 10px; margin-right: auto; }
+    .navbar__logo svg { flex-shrink: 0; }
+    .navbar__title { font-size: 18px; font-weight: 600; }
+    .navbar__links { display: flex; gap: 24px; list-style: none; margin-right: auto; }
+    .navbar__links a { font-size: 14px; font-weight: 400; color: var(--text-body); text-decoration: none; }
+    .navbar__links a:hover { color: var(--accent); }
+    .navbar__avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: #BDBDBD; display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ── Content ── */
+    .content { max-width: 1200px; margin: 0 auto; padding: 20px 24px 60px; }
+
+    /* ── Toolbar (search + sort + count) ── */
+    .toolbar {
+      display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 16px;
+      padding: 14px 16px; border: 1px solid var(--border); border-radius: 10px;
+      background: var(--surface); margin-bottom: 12px;
+    }
+    .field { display: flex; flex-direction: column; gap: 4px; min-width: 140px; }
+    .field--grow { flex: 1 1 220px; min-width: 200px; }
+    .field__label {
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--text-muted);
+    }
+    .input, .select {
+      font: inherit; font-size: 14px; color: var(--text-h);
+      background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+      padding: 7px 10px; min-height: 36px;
+    }
+    .input:focus, .select:focus { outline: 2px solid var(--focus); outline-offset: 1px; }
+    .toolbar__meta {
+      margin-left: auto; align-self: center;
+      font-size: 13px; color: var(--text-muted); white-space: nowrap;
+    }
+
+    /* ── Bulk bar (actions + inline filters) ── */
+    .bulk-bar {
+      display: flex; flex-wrap: wrap; align-items: flex-end;
+      justify-content: space-between; gap: 10px 20px;
+      padding: 10px 16px; border: 1px solid var(--border);
+      border-radius: 10px; background: var(--surface); margin-bottom: 16px;
+    }
+    .bulk-bar__start { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; }
+    .bulk-bar__filters { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 16px; margin-left: auto; }
+    .bulk-bar__meta { font-size: 13px; font-weight: 600; color: var(--text-h); }
+
+    .icon-text-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 10px; border: none; border-radius: 8px;
+      background: transparent; color: var(--text-h); font: inherit;
+      font-size: 14px; font-weight: 500; cursor: pointer;
+    }
+    .icon-text-btn:hover:not(:disabled) { background: var(--row-hover); }
+    .icon-text-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .icon-text-btn svg { flex-shrink: 0; }
+
+    .btn { font: inherit; font-size: 13px; font-weight: 600; border-radius: 8px; padding: 7px 14px; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text-h); }
+    .btn:hover { background: var(--row-hover); }
+    .btn--ghost { background: transparent; }
+    .btn--ghost:hover { background: var(--row-hover); }
+    .btn--filter {
+      position: relative; display: inline-flex; align-items: center; gap: 6px;
+      min-height: 36px; padding: 7px 14px; font-weight: 600; font-size: 14px;
+      border-radius: 8px; border: 1px solid var(--border);
+      background: var(--surface); color: var(--text-h); cursor: pointer;
+    }
+    .btn--filter:hover { background: var(--row-hover); border-color: var(--text-muted); }
+    .btn__badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 20px; height: 20px; padding: 0 5px;
+      font-size: 11px; font-weight: 700; border-radius: 999px;
+      background: var(--accent); color: #fff;
+    }
+    .field--table-filter { min-width: 130px; }
+
+    /* ── Collection toggles ── */
+    .source-row { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
+    .source-filter {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--text-body); cursor: pointer; user-select: none;
+    }
+    .source-filter input[type="checkbox"] { display: none; }
+    .source-filter__dot {
+      width: 14px; height: 14px; border-radius: 2px; flex-shrink: 0;
+      position: relative; border: 1.5px solid transparent; transition: opacity 0.15s;
+    }
+    .source-filter input:not(:checked) ~ .source-filter__dot { opacity: 0.35; }
+    .source-filter input:checked ~ .source-filter__dot::after {
+      content: ''; position: absolute; top: 1px; left: 4px;
+      width: 4px; height: 7px; border: solid var(--neutral-70);
+      border-width: 0 1.5px 1.5px 0; transform: rotate(45deg);
+    }
+
+    /* ── Card Grid ── */
+    .card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    @media (max-width: 900px) { .card-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px) { .card-grid { grid-template-columns: 1fr; } }
+
+    .card {
+      position: relative;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; box-shadow: var(--shadow-sm);
+      overflow: visible; display: flex; flex-direction: column; cursor: pointer;
+      transition: box-shadow 0.15s;
+    }
+    .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.13); }
+    .card.is-selected { border-color: var(--accent); box-shadow: 0 0 0 2px var(--focus); }
+    .card.hidden { display: none; }
+    .card.flip-out { position: fixed; z-index: 10; pointer-events: none; transition: opacity 0.35s ease, transform 0.35s ease; }
+
+    .card__check {
+      position: absolute; top: 10px; left: 10px; z-index: 5;
+      width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent);
+    }
+
+    .card__header { padding: 14px 16px 10px 40px; border-radius: 7px 7px 0 0; }
+    .card[data-source="cyan"] .card__header  { background: var(--cyan); }
+    .card[data-source="amber"] .card__header { background: var(--amber); }
+    .card[data-source="green"] .card__header { background: var(--green); }
+    .card__title { font-size: 14px; font-weight: 600; line-height: 1.4; }
+
+    .card__body { padding: 10px 16px 14px; display: flex; flex-direction: column; flex: 1; }
+    .card__dates { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+    .card__desc {
+      font-size: 13px; font-weight: 400; line-height: 1.45; color: var(--text-body);
+      margin-bottom: 10px; display: -webkit-box; -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2; overflow: hidden;
+    }
+    .card__divider { height: 1px; background: var(--border-subtle); margin-bottom: 10px; }
+
+    .card__footer { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; margin-top: auto; }
+    .card__footer-main { flex: 1; min-width: 0; }
+    .card__archive-line { font-size: 11px; line-height: 1.5; margin-bottom: 6px; color: var(--text-body); }
+    .card__archive-line strong { font-weight: 600; }
+    .card__kv { white-space: nowrap; }
+    .card__kv + .card__kv { margin-left: 14px; }
+
+    .card__pill-row { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 4px; }
+    .card__pill-row:last-child { margin-bottom: 0; }
+    .card__pill-label { font-size: 11px; font-weight: 600; color: var(--text-body); white-space: nowrap; }
+    .pill {
+      display: inline-flex; align-items: center; padding: 3px 8px;
+      background: var(--neutral-10); border-radius: 4px;
+      font-size: 11px; font-weight: 400; color: var(--neutral-70); max-width: 100%;
+    }
+
+    .card__icons { display: flex; flex-direction: column; align-items: center; gap: 8px; flex-shrink: 0; padding-bottom: 2px; }
+    .card__icon-wrap {
+      position: relative; display: flex; justify-content: center; align-items: center;
+    }
+    .card__icon-wrap::after {
+      content: attr(data-tooltip); position: absolute; bottom: calc(100% + 8px); left: 50%;
+      transform: translateX(-50%); padding: 5px 9px; background: #1a1a1a; color: #fff;
+      font-size: 11px; border-radius: 4px; max-width: 220px; text-align: center;
+      white-space: normal; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      opacity: 0; visibility: hidden; pointer-events: none; z-index: 30;
+      transition: opacity 0.15s, visibility 0.15s;
+    }
+    .card__icon-wrap:hover::after { opacity: 1; visibility: visible; }
+    .card__icon { display: block; object-fit: contain; flex-shrink: 0; }
+    .card__icon--key  { width: 11px; height: 22px; }
+    .card__icon--doc  { width: 15px; height: 19px; }
+    .card__icon--owner { width: 19px; height: 20px; }
+
+    /* ── Drawer (shared) ── */
+    .drawer-root {
+      position: fixed; inset: 0; z-index: 10000; pointer-events: auto;
+      opacity: 0; visibility: hidden; transition: opacity 0.25s, visibility 0.25s;
+    }
+    .drawer-root.open { opacity: 1; visibility: visible; }
+    .drawer-backdrop { position: absolute; inset: 0; background: rgba(15,18,28,0.45); cursor: pointer; }
+    .drawer-panel {
+      position: absolute; top: 0; right: 0; height: 100%; width: min(440px, 100vw);
+      background: var(--surface); border-left: 1px solid var(--border);
+      box-shadow: -12px 0 40px rgba(0,0,0,0.18);
+      display: flex; flex-direction: column;
+      transform: translateX(100%); transition: transform 0.3s cubic-bezier(.4,0,.2,1);
+    }
+    .drawer-root.open .drawer-panel { transform: translateX(0); }
+    .drawer-panel--filter { width: min(380px, 100vw); }
+
+    .drawer-strip {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 10px 14px; border-bottom: 1px solid var(--border);
+    }
+    .drawer-strip__actions { display: flex; align-items: center; gap: 12px; }
+    .btn-icon {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px; border: none; border-radius: 8px;
+      background: transparent; color: var(--text-body); cursor: pointer;
+    }
+    .btn-icon:hover { background: var(--row-hover); color: var(--text-h); }
+
+    .drawer-header {
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+      padding: 16px 16px 12px; border-bottom: 1px solid var(--border);
+    }
+    .drawer-header--toolbar { align-items: center; }
+    .drawer-kicker { margin: 0 0 4px; font-family: var(--mono); font-size: 12px; color: var(--text-muted); }
+    .drawer-title { margin: 0; font-size: 16px; font-weight: 600; line-height: 1.35; }
+    .drawer-body { padding: 12px 16px 20px; overflow: auto; flex: 1; }
+    .drawer-body--filter { display: flex; flex-direction: column; padding-bottom: 12px; }
+
+    .drawer-section { margin-bottom: 16px; }
+    .drawer-section__title {
+      margin: 0 0 8px; font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted);
+    }
+    .drawer-field { display: grid; gap: 2px; padding: 7px 0; border-bottom: 1px solid var(--border-subtle); }
+    .drawer-field__label { font-size: 11px; font-weight: 600; color: var(--text-muted); }
+    .drawer-field__value { font-size: 14px; line-height: 1.45; color: var(--text-h); white-space: pre-wrap; }
+
+    .filter-drawer-hint { margin: 0 0 12px; font-size: 13px; line-height: 1.4; color: var(--text-muted); }
+    .filter-fields { display: flex; flex-direction: column; gap: 12px; flex: 1; }
+    .field--block { min-width: 0; width: 100%; }
+    .filter-drawer-footer {
+      display: flex; gap: 8px; justify-content: flex-end;
+      margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border-subtle);
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="navbar__logo">
+      <svg width="32" height="32" viewBox="0 0 47 47" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="4" y="8" width="39" height="10" rx="2" stroke="#000" stroke-width="2.5" fill="none"/>
+        <path d="M8 18v19a2 2 0 002 2h27a2 2 0 002-2V18" stroke="#000" stroke-width="2.5" fill="none"/>
+        <rect x="18" y="23" width="11" height="3" rx="1" stroke="#000" stroke-width="2" fill="none"/>
+      </svg>
+      <span class="navbar__title">Firm Archive</span>
+    </div>
+    <ul class="navbar__links">
+      <li><a href="index.html">v1 (cards only)</a></li>
+      <li><a href="#">Home</a></li>
+      <li><a href="#">Advanced Search</a></li>
+      <li><a href="#">FAQ</a></li>
+    </ul>
+    <div class="navbar__avatar">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" fill="#fff"/><path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6" fill="#fff"/></svg>
+    </div>
+  </nav>
+
+  <div class="content">
+
+    <!-- Search toolbar -->
+    <div class="toolbar" role="search">
+      <label class="field field--grow">
+        <span class="field__label">Search</span>
+        <input class="input" id="searchInput" type="search" placeholder="Archive ID, name, description, client..." value="Heinz" autocomplete="off">
+      </label>
+      <label class="field">
+        <span class="field__label">Sort</span>
+        <select class="select" id="sortSelect">
+          <option value="relevance">Relevance</option>
+          <option value="name:asc">Name (A–Z)</option>
+          <option value="name:desc">Name (Z–A)</option>
+          <option value="modified:desc">Modified (newest)</option>
+          <option value="modified:asc">Modified (oldest)</option>
+          <option value="collection">Document Collection</option>
+        </select>
+      </label>
+      <p class="toolbar__meta" id="resultCount" role="status">0 results</p>
+    </div>
+
+    <!-- Collection source toggles -->
+    <div class="source-row">
+      <label class="source-filter">
+        <input type="checkbox" checked data-filter="cyan">
+        <span class="source-filter__dot" style="background:var(--cyan)"></span>
+        Alfresco documents
+      </label>
+      <label class="source-filter">
+        <input type="checkbox" checked data-filter="amber">
+        <span class="source-filter__dot" style="background:var(--amber)"></span>
+        Dombrowski Collection
+      </label>
+      <label class="source-filter">
+        <input type="checkbox" checked data-filter="green">
+        <span class="source-filter__dot" style="background:var(--green)"></span>
+        Lorem Ipsum Library
+      </label>
+    </div>
+
+    <!-- Bulk actions + inline filters -->
+    <div class="bulk-bar">
+      <div class="bulk-bar__start">
+        <button type="button" class="icon-text-btn" id="btnDownload" disabled>
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 3.5v7.5M5.5 8.5L9 12l3.5-3.5" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.75 14.25h10.5" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/></svg>
+          Download
+        </button>
+        <button type="button" class="icon-text-btn" id="btnExport" disabled>
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="3.25" y="6.75" width="7" height="7" rx="0.75" stroke="currentColor" stroke-width="1.35"/><path d="M10.25 7.25L14.75 2.75M14.75 2.75h-3.5M14.75 2.75v3.5" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Export
+        </button>
+        <span class="bulk-bar__meta" id="selectionCount" style="display:none"></span>
+      </div>
+      <div class="bulk-bar__filters">
+        <label class="field field--table-filter">
+          <span class="field__label">Partner approval</span>
+          <select class="select" id="partnerFilter">
+            <option value="all">All</option>
+            <option value="yes">Required</option>
+            <option value="no">Not required</option>
+            <option value="unknown">Unknown</option>
+          </select>
+        </label>
+        <label class="field field--table-filter">
+          <span class="field__label">File type</span>
+          <select class="select" id="fileTypeFilter">
+            <option value="">All types</option>
+          </select>
+        </label>
+        <button type="button" class="btn--filter" id="btnMoreFilters">
+          More Filters
+        </button>
+      </div>
+    </div>
+
+    <div class="card-grid" id="cardGrid"></div>
+  </div>
+
+  <!-- Record detail drawer -->
+  <div class="drawer-root" id="recordDrawer">
+    <div class="drawer-backdrop"></div>
+    <aside class="drawer-panel">
+      <div class="drawer-strip">
+        <div class="drawer-strip__actions">
+          <button type="button" class="icon-text-btn" id="drawerDownload">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 3.5v7.5M5.5 8.5L9 12l3.5-3.5" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.75 14.25h10.5" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/></svg>
+            Download
+          </button>
+          <button type="button" class="icon-text-btn" id="drawerExport">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="3.25" y="6.75" width="7" height="7" rx="0.75" stroke="currentColor" stroke-width="1.35"/><path d="M10.25 7.25L14.75 2.75M14.75 2.75h-3.5M14.75 2.75v3.5" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Export
+          </button>
+        </div>
+        <button type="button" class="btn-icon" id="drawerClose" aria-label="Close">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4.5 4.5l9 9M13.5 4.5l-9 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <header class="drawer-header">
+        <div>
+          <p class="drawer-kicker" id="drawerArchiveId"></p>
+          <h2 class="drawer-title" id="drawerTitle"></h2>
+        </div>
+      </header>
+      <div class="drawer-body" id="drawerBody"></div>
+    </aside>
+  </div>
+
+  <!-- More Filters drawer -->
+  <div class="drawer-root" id="filterDrawer">
+    <div class="drawer-backdrop"></div>
+    <aside class="drawer-panel drawer-panel--filter">
+      <header class="drawer-header drawer-header--toolbar">
+        <h2 class="drawer-title">More Filters</h2>
+        <button type="button" class="btn-icon" id="filterDrawerClose" aria-label="Close">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4.5 4.5l9 9M13.5 4.5l-9 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </header>
+      <div class="drawer-body drawer-body--filter">
+        <p class="filter-drawer-hint">Partner approval and file type filters are on the toolbar.</p>
+        <div class="filter-fields">
+          <label class="field field--block">
+            <span class="field__label">Client</span>
+            <select class="select" id="clientFilter">
+              <option value="">All clients</option>
+            </select>
+          </label>
+          <label class="field field--block">
+            <span class="field__label">Owner contains</span>
+            <input class="input" id="ownerFilter" type="text" placeholder="Filter by owner text..." autocomplete="off">
+          </label>
+        </div>
+        <div class="filter-drawer-footer">
+          <button type="button" class="btn btn--ghost" id="clearDrawerFilters">Clear</button>
+          <button type="button" class="btn" id="doneDrawerFilters">Done</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════════
+   MOCK DATA
+   ══════════════════════════════════════════════════════════════════════════ */
+var RECORDS = [
+  {id:"10241",name:"Client Files: Heinz Management Conference (Box 30), 1974",description:"Correspondence and data re Heinz Management Conference action program; strategic options and analysis. Offices: Pittsburgh, London.",startDate:"1/15/1974",endDate:"8/22/1974",modified:"9/1/1974",client:"HJ. Heinz",source:"cyan",collection:"Alfresco documents",partner:"yes",fileType:"PDF",owner:"Alfred Astort-Tubert",modifier:"James Porter",creator:"Margaret Chen",box:"Box 30",cell:"C12",office:"Pittsburgh",series:"Client matters",recordGroup:"RG-Client-CPG",subject:"Consumer / Strategy",accessNote:"Partner review before release",usageRights:"Firm internal",access:"Restricted",originalFormat:"Scanned paper"},
+  {id:"20816",name:"Digital Transformation Initiative - Phase 2 (Box 32)",description:"Cloud infrastructure and data migration across European markets; steering updates and risk register.",startDate:"4/1/2024",endDate:"12/31/2025",modified:"2/14/2025",client:"HJ. Heinz",source:"cyan",collection:"Alfresco documents",partner:"yes",fileType:"PDF",owner:"Alfred Astort-Tubert",modifier:"Priya Nandakumar",creator:"Ops PMO",box:"Box 32",cell:"C09",office:"London",series:"Client matters",recordGroup:"RG-Client-Tech",subject:"Technology / Cloud",accessNote:"Restricted until project close",usageRights:"Firm internal + client",access:"Confidential",originalFormat:"Born-digital",progress:68},
+  {id:"44102",name:"Heinz 1972 Annual Strategy Review Meeting (Box 124)",description:"Executive leadership review of annual performance and fiscal-year priorities. New York Office, Conf Room A; 24 participants.",startDate:"11/18/2024",endDate:"11/18/2024",modified:"11/19/2024",client:"HJ. Heinz",source:"amber",collection:"Dombrowski Collection",partner:"yes",fileType:"PDF",owner:"Alfred Astort-Tubert",modifier:"Alex Morgan",creator:"Corporate Secretary Office",box:"Box 124",cell:"C01",office:"New York",series:"Administrative",recordGroup:"RG-Internal",subject:"Corporate / Strategy",accessNote:"",usageRights:"Firm internal",access:"Internal",originalFormat:"Scanned minutes"},
+  {id:"11890",name:"Client Files: Heinz Management Conference (Box 435), 1974",description:"Correspondence and data re Heinz Management Conference action program, examination of strategic options; analysis.",startDate:"2/3/1974",endDate:"9/30/1974",modified:"10/2/1974",client:"HJ. Heinz",source:"amber",collection:"Dombrowski Collection",partner:"no",fileType:"TIFF",owner:"Alfred Astort-Tubert",modifier:"Diane Holloway",creator:"Records Services",box:"Box 435",cell:"C18",office:"Chicago",series:"Client matters",recordGroup:"RG-Client-CPG",subject:"Consumer / Strategy",accessNote:"",usageRights:"Firm internal",access:"Confidential",originalFormat:"Microfilm scan"},
+  {id:"55301",name:"Client Files: Heinz Performance Dataset (Folder 3,838)",description:"Partner approval; PDF and RG4 provenance. 100% owned; Kobol aggregated metrics. CPG division.",startDate:"6/1/2019",endDate:"3/15/2023",modified:"3/16/2023",client:"HJ. Heinz",source:"green",collection:"Lorem Ipsum Library",partner:"unknown",fileType:"XLSX",owner:"Alfred Astort-Tubert",modifier:"Elisa Branton-McChallagan",creator:"Elisa Branton-McChallagan, Benita Liu",box:"Folder 3838",cell:"M01",office:"London",series:"Third-party archives",recordGroup:"RG-External",subject:"Research / Data",accessNote:"Verify reproduction rights",usageRights:"Limited by agreement",access:"Restricted",originalFormat:"Mixed digital"}
+];
+
+(function generateExtra() {
+  var SOURCES = [{source:'cyan',collection:'Alfresco documents'},{source:'amber',collection:'Dombrowski Collection'},{source:'green',collection:'Lorem Ipsum Library'}];
+  var TA = ['Heinz','Archive','Client','Project','Engagement','Matter','Workstream','Initiative','Program','Case','Record','Bundle','Dossier','Binder','Series','Volume','Tranche'];
+  var TB = ['Review','Memo','Brief','Summary','Analysis','Assessment','Audit','Closeout','Kickoff','Workplan','Update','Status','Minutes','Transcript','Correspondence','Agreement','Amendment'];
+  var DS = ['Internal correspondence and supporting materials.','Draft materials for partner review.','Historical records retained under policy.','Scanned images with OCR text layer.','Restricted distribution; handle per policy.','Cross-references related Heinz materials.','Compiled for diligence and disclosure.','Legacy filing; location verified 2024.','Mixed media; index incomplete.','Redactions applied per legal guidance.'];
+  var BP = ['Box','Folder','Drawer','Vault','Cabinet','Shelf','Lot','Carton'];
+  var MOD = ['Paul Lasewickz','Priya Nandakumar','Alex Morgan','James Porter','Diane Holloway','Sam Okonkwo','Rina Patel','Chris Delgado','Jordan Ellis','Taylor Brooks','Morgan Lee','Casey Nguyen'];
+  var CRE = ['Records Services','Ops PMO','Corporate Secretary Office','Margaret Chen','Benita Liu','Digital Archives Unit','Litigation Support','Knowledge Management','Taxonomy Working Group'];
+  var OWN = ['Alfred Astort-Tubert','Records — Corporate','Records — Litigation','Knowledge Management','Records — Research','Records — Life Sciences'];
+  var FT = ['PDF','DOCX','TIFF','XLSX','MSG','PDF, MSG','PDF, TIFF'];
+  var PA = ['yes','no','unknown'];
+  var SUB = ['Corporate / M&A','Life sciences','Litigation / Holds','Real estate','Research / Historical','Internal / Policies','Consumer / Strategy','Technology / Cloud'];
+  var SER = ['Client matters','Administrative','Third-party archives'];
+  var OFF = ['London','Boston','New York','Chicago','San Francisco','Munich'];
+  function pick(a){return a[Math.floor(Math.random()*a.length)]}
+  function fmtD(d){return (d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear()}
+  function randDate(y0,y1){var lo=new Date(y0,0,1).getTime(),hi=new Date(y1,11,31).getTime();return new Date(lo+Math.floor(Math.random()*(hi-lo)))}
+
+  var srcList=[];
+  [14,13,13].forEach(function(n,i){for(var c=0;c<n;c++) srcList.push(SOURCES[i])});
+  for(var i=srcList.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=srcList[i];srcList[i]=srcList[j];srcList[j]=t}
+
+  for(var n=0;n<40;n++){
+    var s=srcList[n],y0=1968+Math.floor(Math.random()*58),y1=Math.min(y0+Math.floor(Math.random()*8),2026);
+    var dA=randDate(y0,y0),dB=randDate(y1,y1);if(dA>dB){var tmp=dA;dA=dB;dB=tmp}
+    var loc=pick(BP)+' '+String(1+Math.floor(Math.random()*900));
+    RECORDS.push({
+      id:String(10000+Math.floor(Math.random()*90000)),
+      name:pick(TA)+' '+pick(TB)+' ('+loc+'), '+y0,
+      description:pick(DS),startDate:fmtD(dA),endDate:fmtD(dB),modified:fmtD(randDate(1990,2026)),
+      client:Math.random()>0.15?'HJ. Heinz':'Heinz USA',source:s.source,collection:s.collection,
+      partner:pick(PA),fileType:pick(FT),owner:pick(OWN),modifier:pick(MOD),creator:pick(CRE),
+      box:loc,cell:'C'+String(Math.floor(Math.random()*20)).padStart(2,'0'),office:pick(OFF),
+      series:pick(SER),recordGroup:'RG-'+String(Math.floor(Math.random()*9999)),
+      subject:pick(SUB),accessNote:'',usageRights:'Firm internal',access:'Confidential',originalFormat:'Mixed'
+    });
+  }
+})();
+
+/* ══════════════════════════════════════════════════════════════════════════
+   STATE
+   ══════════════════════════════════════════════════════════════════════════ */
+var checkedIds = new Set();
+var selectedRecord = null;
+var grid = document.getElementById('cardGrid');
+var cardElements = new Map();
+var DURATION = 400;
+
+/* ══════════════════════════════════════════════════════════════════════════
+   POPULATE FILE-TYPE & CLIENT DROPDOWNS
+   ══════════════════════════════════════════════════════════════════════════ */
+(function populateDropdowns() {
+  var fts = new Set(), cls = new Set();
+  RECORDS.forEach(function(r){ fts.add(r.fileType); cls.add(r.client); });
+  var ftSel = document.getElementById('fileTypeFilter');
+  Array.from(fts).sort().forEach(function(ft){
+    var o = document.createElement('option'); o.value = ft; o.textContent = ft; ftSel.appendChild(o);
+  });
+  var clSel = document.getElementById('clientFilter');
+  Array.from(cls).sort().forEach(function(c){
+    var o = document.createElement('option'); o.value = c; o.textContent = c; clSel.appendChild(o);
+  });
+})();
+
+/* ══════════════════════════════════════════════════════════════════════════
+   RENDER CARDS
+   ══════════════════════════════════════════════════════════════════════════ */
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+function renderCards() {
+  grid.innerHTML = '';
+  cardElements.clear();
+  RECORDS.forEach(function(r) {
+    var div = document.createElement('div');
+    div.className = 'card';
+    div.dataset.source = r.source;
+    div.dataset.collection = r.collection;
+    div.dataset.id = r.id;
+
+    var progressHtml = '';
+    if (r.progress) {
+      progressHtml =
+        '<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:11px;font-weight:600;margin-bottom:3px"><span>Progress:</span><span style="font-weight:400">'+r.progress+'%</span></div>' +
+        '<div style="height:6px;background:#E6E6E6;border-radius:99px;overflow:hidden"><div style="height:100%;width:'+r.progress+'%;background:var(--accent);border-radius:99px"></div></div></div>';
+    }
+
+    div.innerHTML =
+      '<input type="checkbox" class="card__check" data-id="'+esc(r.id)+'"' + (checkedIds.has(r.id) ? ' checked' : '') + '>' +
+      '<div class="card__header"><h2 class="card__title">'+esc(r.name)+'</h2></div>' +
+      '<div class="card__body">' +
+        '<p class="card__dates">From '+esc(r.startDate)+' to '+esc(r.endDate)+'</p>' +
+        '<p class="card__desc">'+esc(r.description)+'</p>' +
+        progressHtml +
+        '<div class="card__divider"></div>' +
+        '<div class="card__footer"><div class="card__footer-main">' +
+          '<p class="card__archive-line"><span class="card__kv"><strong>Archive ID:</strong> '+esc(r.id)+'</span><span class="card__kv"><strong>Modified:</strong> '+esc(r.modified)+'</span></p>' +
+          '<div class="card__pill-row"><span class="card__pill-label">Client:</span><span class="pill">'+esc(r.client)+'</span></div>' +
+          '<div class="card__pill-row"><span class="card__pill-label">Creator:</span><span class="pill">'+esc(r.creator)+'</span></div>' +
+        '</div>' +
+        '<div class="card__icons">' +
+          '<span class="card__icon-wrap" data-tooltip="'+(r.partner==='yes'?'Partner Approval Required':r.partner==='no'?'No Partner Approval':'Unknown')+'"><img class="card__icon card__icon--key" src="Icon_Key.png" alt="" width="11" height="22"></span>' +
+          '<span class="card__icon-wrap" data-tooltip="'+esc(r.fileType)+'"><img class="card__icon card__icon--doc" src="Icon_document.png" alt="" width="15" height="19"></span>' +
+          '<span class="card__icon-wrap" data-tooltip="'+esc(r.owner)+'"><img class="card__icon card__icon--owner" src="icon_Owner.png" alt="" width="19" height="20"></span>' +
+        '</div></div></div>';
+
+    div.querySelector('.card__check').addEventListener('click', function(e) { e.stopPropagation(); });
+    div.querySelector('.card__check').addEventListener('change', function(e) {
+      if (e.target.checked) checkedIds.add(r.id); else checkedIds.delete(r.id);
+      updateBulkUI();
+    });
+    div.addEventListener('click', function() { openRecordDrawer(r); });
+
+    grid.appendChild(div);
+    cardElements.set(r.id, div);
+  });
+}
+renderCards();
+
+/* ══════════════════════════════════════════════════════════════════════════
+   FLIP ANIMATION ENGINE
+   ══════════════════════════════════════════════════════════════════════════ */
+var animating = false;
+
+function animateLayout(applyFn) {
+  if (animating) { applyFn(); return; }
+  animating = true;
+
+  var allCards = Array.from(grid.querySelectorAll('.card[data-source]'));
+  var firstRects = new Map();
+  allCards.forEach(function(card) {
+    if (!card.classList.contains('hidden')) {
+      firstRects.set(card, card.getBoundingClientRect());
+    }
+  });
+
+  applyFn();
+
+  var toShow = [];
+  allCards.forEach(function(card) {
+    if (!firstRects.has(card) && !card.classList.contains('hidden')) toShow.push(card);
+  });
+
+  firstRects.forEach(function(rect, card) {
+    if (card.classList.contains('hidden')) {
+      var ghost = card.cloneNode(true);
+      ghost.classList.remove('hidden');
+      ghost.classList.add('flip-out');
+      ghost.style.left = rect.left + 'px';
+      ghost.style.top = rect.top + 'px';
+      ghost.style.width = rect.width + 'px';
+      ghost.style.height = rect.height + 'px';
+      document.body.appendChild(ghost);
+      requestAnimationFrame(function() {
+        ghost.style.opacity = '0';
+        ghost.style.transform = 'scale(0.92)';
+      });
+      setTimeout(function() { ghost.remove(); }, DURATION);
+    }
+  });
+
+  toShow.forEach(function(card) {
+    card.style.opacity = '0';
+    card.style.transform = 'scale(0.92)';
+    card.style.transition = 'none';
+  });
+
+  allCards.forEach(function(card) {
+    if (card.classList.contains('hidden')) return;
+    if (toShow.indexOf(card) !== -1) return;
+    var firstRect = firstRects.get(card);
+    if (!firstRect) return;
+    var lastRect = card.getBoundingClientRect();
+    var dx = firstRect.left - lastRect.left;
+    var dy = firstRect.top - lastRect.top;
+    if (dx === 0 && dy === 0) return;
+    card.style.transition = 'none';
+    card.style.transform = 'translate(' + dx + 'px, ' + dy + 'px)';
+  });
+
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+      var ease = 'transform ' + DURATION + 'ms cubic-bezier(.4,0,.2,1), opacity ' + DURATION + 'ms ease';
+      allCards.forEach(function(card) {
+        if (card.classList.contains('hidden')) return;
+        card.style.transition = ease;
+        card.style.transform = '';
+        if (toShow.indexOf(card) !== -1) card.style.opacity = '';
+      });
+      setTimeout(function() {
+        allCards.forEach(function(card) {
+          card.style.transition = '';
+          card.style.transform = '';
+          card.style.opacity = '';
+        });
+        animating = false;
+      }, DURATION + 20);
+    });
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   FILTERING + SORTING
+   ══════════════════════════════════════════════════════════════════════════ */
+function computeFilterSort() {
+  var query = document.getElementById('searchInput').value.trim().toLowerCase();
+  var partnerVal = document.getElementById('partnerFilter').value;
+  var ftVal = document.getElementById('fileTypeFilter').value;
+  var clientVal = document.getElementById('clientFilter').value;
+  var ownerVal = document.getElementById('ownerFilter').value.trim().toLowerCase();
+  var activeCollections = new Set();
+  document.querySelectorAll('.source-filter input[type="checkbox"]').forEach(function(cb){
+    if(cb.checked) activeCollections.add(cb.dataset.filter);
+  });
+
+  var visibleCount = 0;
+  RECORDS.forEach(function(r) {
+    var el = cardElements.get(r.id);
+    if (!el) return;
+    var show = true;
+    if (!activeCollections.has(r.source)) show = false;
+    if (show && query) {
+      var hay = (r.id + ' ' + r.name + ' ' + r.description + ' ' + r.client).toLowerCase();
+      if (hay.indexOf(query) === -1) show = false;
+    }
+    if (show && partnerVal !== 'all' && r.partner !== partnerVal) show = false;
+    if (show && ftVal && r.fileType !== ftVal) show = false;
+    if (show && clientVal && r.client !== clientVal) show = false;
+    if (show && ownerVal && r.owner.toLowerCase().indexOf(ownerVal) === -1) show = false;
+
+    el.classList.toggle('hidden', !show);
+    if (show) visibleCount++;
+  });
+
+  document.getElementById('resultCount').textContent = visibleCount + ' result' + (visibleCount === 1 ? '' : 's');
+
+  var mode = document.getElementById('sortSelect').value;
+  var cards = Array.from(grid.querySelectorAll('.card[data-source]:not(.hidden)'));
+  var searchTerm = query;
+
+  cards.sort(function(a, b) {
+    var ra = getRecord(a.dataset.id), rb = getRecord(b.dataset.id);
+    if (!ra || !rb) return 0;
+
+    if (mode === 'relevance') {
+      var ca = countOccurrences(a.textContent.toLowerCase(), searchTerm || 'heinz');
+      var cb = countOccurrences(b.textContent.toLowerCase(), searchTerm || 'heinz');
+      if (ca !== cb) return cb - ca;
+      return 0;
+    }
+    if (mode === 'name:asc') return ra.name.localeCompare(rb.name);
+    if (mode === 'name:desc') return rb.name.localeCompare(ra.name);
+    if (mode === 'modified:desc' || mode === 'modified:asc') {
+      var da = parseLooseDate(ra.modified), db = parseLooseDate(rb.modified);
+      return mode === 'modified:desc' ? db - da : da - db;
+    }
+    if (mode === 'collection') {
+      var cmp = ra.collection.localeCompare(rb.collection);
+      return cmp !== 0 ? cmp : ra.name.localeCompare(rb.name);
+    }
+    return 0;
+  });
+
+  cards.forEach(function(c) { grid.appendChild(c); });
+}
+
+function applyFilters() {
+  animateLayout(computeFilterSort);
+}
+
+function getRecord(id) { return RECORDS.find(function(r){return r.id===id}); }
+function countOccurrences(text, term) {
+  if (!term) return 0;
+  var c=0,p=0;
+  while((p=text.indexOf(term,p))!==-1){c++;p+=term.length;}
+  return c;
+}
+function parseLooseDate(s) {
+  var parts = s.split('/');
+  if (parts.length === 3) return new Date(+parts[2], +parts[0]-1, +parts[1]).getTime();
+  return 0;
+}
+
+/* Debounce helper for search input */
+var searchTimer = null;
+function applyFiltersDebounced() {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(applyFilters, 250);
+}
+
+/* Wire up filter/sort controls */
+document.getElementById('searchInput').addEventListener('input', applyFiltersDebounced);
+document.getElementById('sortSelect').addEventListener('change', applyFilters);
+document.getElementById('partnerFilter').addEventListener('change', applyFilters);
+document.getElementById('fileTypeFilter').addEventListener('change', applyFilters);
+document.querySelectorAll('.source-filter input[type="checkbox"]').forEach(function(cb){
+  cb.addEventListener('change', applyFilters);
+});
+
+computeFilterSort();
+
+/* ══════════════════════════════════════════════════════════════════════════
+   BULK ACTIONS (Download / Export)
+   ══════════════════════════════════════════════════════════════════════════ */
+function updateBulkUI() {
+  var n = checkedIds.size;
+  document.getElementById('btnDownload').disabled = n === 0;
+  document.getElementById('btnExport').disabled = n === 0;
+  var span = document.getElementById('selectionCount');
+  if (n > 0) { span.style.display = ''; span.textContent = n + ' selected'; }
+  else { span.style.display = 'none'; }
+}
+
+function getCheckedRecords() {
+  return RECORDS.filter(function(r){ return checkedIds.has(r.id); });
+}
+
+function downloadJson(records, filename) {
+  var blob = new Blob([JSON.stringify(records, null, 2)], {type:'application/json'});
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = filename + '.json'; a.click(); URL.revokeObjectURL(a.href);
+}
+
+function downloadCsv(records, filename) {
+  if (!records.length) return;
+  var keys = Object.keys(records[0]);
+  var rows = [keys.join(',')];
+  records.forEach(function(r){
+    rows.push(keys.map(function(k){ return '"' + String(r[k]||'').replace(/"/g,'""') + '"'; }).join(','));
+  });
+  var blob = new Blob([rows.join('\n')], {type:'text/csv'});
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = filename + '.csv'; a.click(); URL.revokeObjectURL(a.href);
+}
+
+document.getElementById('btnDownload').addEventListener('click', function(){ downloadJson(getCheckedRecords(), 'archive-export'); });
+document.getElementById('btnExport').addEventListener('click', function(){ downloadCsv(getCheckedRecords(), 'archive-export'); });
+
+/* ══════════════════════════════════════════════════════════════════════════
+   RECORD DRAWER
+   ══════════════════════════════════════════════════════════════════════════ */
+function openRecordDrawer(r) {
+  selectedRecord = r;
+  document.querySelectorAll('.card.is-selected').forEach(function(c){ c.classList.remove('is-selected'); });
+  var el = cardElements.get(r.id);
+  if (el) el.classList.add('is-selected');
+
+  document.getElementById('drawerArchiveId').textContent = r.id;
+  document.getElementById('drawerTitle').textContent = r.name;
+
+  var body = document.getElementById('drawerBody');
+  body.innerHTML = '';
+
+  function section(title, fields) {
+    var sec = document.createElement('section'); sec.className = 'drawer-section';
+    sec.innerHTML = '<h3 class="drawer-section__title">' + esc(title) + '</h3>';
+    var list = document.createElement('div'); list.className = 'drawer-section__list';
+    fields.forEach(function(f){
+      var d = document.createElement('div'); d.className = 'drawer-field';
+      d.innerHTML = '<div class="drawer-field__label">'+esc(f[0])+'</div><div class="drawer-field__value">'+(f[1]?esc(String(f[1])):'—')+'</div>';
+      list.appendChild(d);
+    });
+    sec.appendChild(list); body.appendChild(sec);
+  }
+
+  section('Core', [
+    ['Description', r.description],
+    ['Start date', r.startDate],
+    ['End date', r.endDate],
+    ['Client', r.client],
+    ['Partner approval', r.partner === 'yes' ? 'Required' : r.partner === 'no' ? 'Not required' : 'Unknown'],
+    ['File type', r.fileType],
+    ['Owner', r.owner],
+    ['Last modified', r.modified],
+  ]);
+  section('Physical / container', [
+    ['Box / location', r.box],
+    ['Cell', r.cell],
+    ['Office', r.office],
+  ]);
+  section('Intellectual arrangement', [
+    ['Series', r.series],
+    ['Record group', r.recordGroup],
+    ['Subject', r.subject],
+  ]);
+  section('Access & rights', [
+    ['Access note', r.accessNote],
+    ['Usage rights', r.usageRights],
+    ['Access', r.access],
+  ]);
+  section('Provenance', [
+    ['Creator', r.creator],
+    ['Modifier', r.modifier],
+    ['Original format', r.originalFormat],
+  ]);
+
+  document.getElementById('recordDrawer').classList.add('open');
+}
+
+function closeRecordDrawer() {
+  document.getElementById('recordDrawer').classList.remove('open');
+  document.querySelectorAll('.card.is-selected').forEach(function(c){ c.classList.remove('is-selected'); });
+  selectedRecord = null;
+}
+
+document.getElementById('drawerClose').addEventListener('click', closeRecordDrawer);
+document.querySelector('#recordDrawer .drawer-backdrop').addEventListener('click', closeRecordDrawer);
+document.getElementById('drawerDownload').addEventListener('click', function(){ if(selectedRecord) downloadJson([selectedRecord],'record-'+selectedRecord.id); });
+document.getElementById('drawerExport').addEventListener('click', function(){ if(selectedRecord) downloadCsv([selectedRecord],'record-'+selectedRecord.id); });
+
+/* ══════════════════════════════════════════════════════════════════════════
+   MORE FILTERS DRAWER
+   ══════════════════════════════════════════════════════════════════════════ */
+function openFilterDrawer() { document.getElementById('filterDrawer').classList.add('open'); }
+function closeFilterDrawer() { document.getElementById('filterDrawer').classList.remove('open'); }
+function updateMoreFiltersBadge() {
+  var n = 0;
+  if (document.getElementById('clientFilter').value) n++;
+  if (document.getElementById('ownerFilter').value.trim()) n++;
+  var btn = document.getElementById('btnMoreFilters');
+  var badge = btn.querySelector('.btn__badge');
+  if (n > 0) {
+    if (!badge) { badge = document.createElement('span'); badge.className = 'btn__badge'; btn.appendChild(badge); }
+    badge.textContent = n;
+  } else if (badge) { badge.remove(); }
+}
+
+document.getElementById('btnMoreFilters').addEventListener('click', openFilterDrawer);
+document.getElementById('filterDrawerClose').addEventListener('click', closeFilterDrawer);
+document.querySelector('#filterDrawer .drawer-backdrop').addEventListener('click', closeFilterDrawer);
+document.getElementById('doneDrawerFilters').addEventListener('click', function(){ closeFilterDrawer(); applyFilters(); updateMoreFiltersBadge(); });
+document.getElementById('clearDrawerFilters').addEventListener('click', function(){
+  document.getElementById('clientFilter').value = '';
+  document.getElementById('ownerFilter').value = '';
+  applyFilters(); updateMoreFiltersBadge();
+});
+document.getElementById('clientFilter').addEventListener('change', function(){ applyFilters(); updateMoreFiltersBadge(); });
+document.getElementById('ownerFilter').addEventListener('input', function(){ applyFilters(); updateMoreFiltersBadge(); });
+
+/* Escape key closes any open drawer */
+document.addEventListener('keydown', function(e){
+  if(e.key==='Escape'){
+    if(document.getElementById('filterDrawer').classList.contains('open')) closeFilterDrawer();
+    else if(document.getElementById('recordDrawer').classList.contains('open')) closeRecordDrawer();
+  }
+});
+</script>
+</body>
+</html>
